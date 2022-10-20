@@ -13,8 +13,8 @@
   </servlet>
   
   <servlet>
-  	<servlet-name>DashboardServlet</servlet-name>
-    <servlet-class>servlets.DashboardServlet</servlet-class>
+  	<servlet-name>LogoutServlet</servlet-name>
+    <servlet-class>servlets.LogoutServlet</servlet-class>
   </servlet>
   
   <servlet>
