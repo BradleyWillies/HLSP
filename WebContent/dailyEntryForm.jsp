@@ -11,6 +11,7 @@
 			rel="stylesheet"
 			integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
 			crossorigin="anonymous">
+		<script defer src="dailyEntryForm.js"></script>
 	</head>
 	<body>
 	
@@ -33,7 +34,7 @@
 					</div>
 			</section>
 
-			<form class="py-5 bg-light container" action="DailyEntryFormServlet" method="POST">
+			<form class="py-5 bg-light container" action="DailyEntryFormServlet" method="POST" id="entryForm">
 				<h4 class="mb-3">Meals</h4>
 				<div class="mb-3">
 					<label for="mealCalories" class="form-label">Calories</label>
@@ -99,6 +100,8 @@
 					<label for="meditationTime" class="form-label">Time (minutes)</label>
 					<input type="number" class="form-control" id="meditationTime" name="meditationTime">
 				</div>
+				
+				<div class="container" id="errorElement"></div>
 								
 				<div class="text-center py-5">
 					<button type="submit" class="btn btn-primary">Submit</button>

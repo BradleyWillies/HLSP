@@ -17,11 +17,6 @@ form.addEventListener('submit', (e) => {
 	
 	if (errorMessages.length > 0) {
     	e.preventDefault()
-
-		errorMessages.forEach (msg => {
-			msg = '<div class="alert alert-danger" role="alert">' + msg + '</div>'
-			console.log(msg)
-		})
 		
 		for (let i = 0; i < errorMessages.length; i++) {
 			errorMessages[i] = '<div class="alert alert-danger" role="alert">' + errorMessages[i] + '</div>'
