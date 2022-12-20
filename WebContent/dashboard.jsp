@@ -15,16 +15,7 @@
 	</head>
 	<body>
 	
-		<header>
-			<div class="navbar navbar-dark bg-dark shadow-sm">
-				<div class="container">
-					<% out.println("<a href=\"" + request.getContextPath() + "/dashboard.jsp\" class=\"navbar-brand d-flex align-items-center\"><strong>Healthy-Life</strong></a>"); %>
-					<form action="LogoutServlet" method="GET">
-						<button class="btn btn-outline-secondary btn-lg px-4">Logout</button>
-					</form>
-				</div>
-			</div>
-		</header>
+		<jsp:include page="header.jsp"/>
 	
 		<main>
 	
@@ -238,15 +229,8 @@
 	
 		</main>
 	
-		<footer class="text-muted py-5">
-		  <div class="container">
-		    <p class="float-end mb-1">
-		      <a href="#">Back to top</a>
-		    </p>
-		    <p class="mb-1">Healthy-Life</p>
-		  </div>
-		</footer>
-	
+		
+		<jsp:include page="footer.jsp"/>
 	
 		<script src="/docs/5.2/dist/js/bootstrap.bundle.min.js"
 			integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
