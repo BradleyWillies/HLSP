@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import util.DatabaseController;
+
 /**
  * Servlet implementation class RegisterServlet
  */
@@ -54,12 +56,28 @@ public class RegisterServlet extends HttpServlet {
 		// get existing session or create new one
         HttpSession session = request.getSession();
         
-        // set the user's email as the session email
-        session.setAttribute("userEmail", request.getParameter("email"));
+        // get the input credentials
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
         
-        // direct to dashboard
-        RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
-		rd.include(request, response);
+        // insert user record in database
+        DatabaseController dbController = new DatabaseController();
+        String insertString = "INSERT INTO user (email, password) VALUES ('" + email + "', '" + password + "');";
+        Boolean insertException = dbController.insertRecord(insertString);
+        
+        // if there is a problem creating the user, such as one already exists, go to login
+        if (insertException) {
+        	// direct to login
+            RequestDispatcher rd = request.getRequestDispatcher("/login.html");
+    		rd.include(request, response);
+        } else {
+        	// set the user's email as the session email
+            session.setAttribute("userEmail", email);
+            
+            // direct to dashboard
+            RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+    		rd.include(request, response);
+        }
 	}
 
 }
