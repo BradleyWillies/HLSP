@@ -62,13 +62,16 @@ public class LoginServlet extends HttpServlet {
         
         // get the userId from the database using the input credentials
         DatabaseController dbController = new DatabaseController();
-        String queryString = "SELECT id FROM user WHERE email LIKE '" + email + "' AND password LIKE '" + password + "';";
+        String queryString = "SELECT id FROM user WHERE email = '" + email + "' AND password = '" + password + "';";
         int userId = dbController.getRecordId(queryString);
         
         // if user exists in database direct them to the dashboard
         if (userId > 0) {
         	// set the user's email as the session email
             session.setAttribute("userEmail", email);
+            
+            // TODO HLSP -  create bean for user with email, id
+            
             
             // direct to dashboard
             RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");

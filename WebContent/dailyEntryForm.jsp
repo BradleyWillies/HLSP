@@ -26,6 +26,7 @@
 			</section>
 
 			<form class="py-5 bg-light container" action="DailyEntryFormServlet" method="POST" id="entryForm">
+						
 				<h4 class="mb-3">Meals</h4>
 				<div class="mb-3">
 					<label for="mealCalories" class="form-label">Calories</label>

@@ -1,16 +1,21 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE html>
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+          xmlns:c="http://java.sun.com/jsp/jstl/core"
+          xmlns:f="http://java.sun.com/jsp/jstl/fmt"
+          version="2.0">
+
+<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 		<title>Healthy-Life</title>
 		<link
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
 			rel="stylesheet"
 			integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
-			crossorigin="anonymous">
+			crossorigin="anonymous"/>
 			
 	</head>
 	<body>
@@ -22,7 +27,8 @@
 			<section class="py-5 text-center container">
 				<div class="row py-lg-5">
 					<div class="col-lg-6 col-md-8 mx-auto">
-						<% out.println("<h1 class=\"fw-light\">Hello " + session.getAttribute("userEmail") + "!</h1>"); %>
+						<c:out value="${user.id}"/>
+						<% out.println("<h1 class=\"fw-light\">Hello " + session.getAttribute("user") + "!</h1>"); %>
 						<p class="lead text-muted">Submit a daily lifestyle entry using the button below</p>
 						<form  action="DailyEntryFormServlet" method="GET">
 						<p>

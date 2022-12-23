@@ -33,7 +33,7 @@ public class LogoutServlet extends HttpServlet {
 		session.invalidate();
 		
 		// direct to index
-		response.sendRedirect("index.html");
+		response.sendRedirect("index.jspx");
 	}
 
 	/**

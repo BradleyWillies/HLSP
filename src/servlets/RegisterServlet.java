@@ -1,6 +1,8 @@
 package servlets;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import beans.User;
 import util.DatabaseController;
 
 /**
@@ -44,9 +47,10 @@ public class RegisterServlet extends HttpServlet {
         }
         // otherwise display the register page
         else {
-        	RequestDispatcher rd = request.getRequestDispatcher("/index.html");
+        	session.removeAttribute("errors");
+        	RequestDispatcher rd = request.getRequestDispatcher("/index.jspx");
     		rd.include(request, response);
-        }
+        } 
 	}
 
 	/**
@@ -55,6 +59,7 @@ public class RegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get existing session or create new one
         HttpSession session = request.getSession();
+        session.removeAttribute("errors");
         
         // get the input credentials
         String email = request.getParameter("email");
@@ -63,16 +68,28 @@ public class RegisterServlet extends HttpServlet {
         // insert user record in database
         DatabaseController dbController = new DatabaseController();
         String insertString = "INSERT INTO user (email, password) VALUES ('" + email + "', '" + password + "');";
-        Boolean insertException = dbController.insertRecord(insertString);
+        int newUserId = dbController.insertRecord(insertString);
         
-        // if there is a problem creating the user, such as one already exists, go to login
-        if (insertException) {
-        	// direct to login
-            RequestDispatcher rd = request.getRequestDispatcher("/login.html");
+	    // create user bean and validate credentials
+	    User user = new User(newUserId, email);
+	    ArrayList<String> credentialErrors = user.validateCredentials(email, password);
+	    if (newUserId == 0) {
+	    	credentialErrors.add("A user with that email already exists");
+	    }
+        
+        // if there is a problem creating the user, such as one already exists, reload page
+        if (credentialErrors.size() > 0) {
+        	// set the list of errors as a session variable
+        	session.setAttribute("errors", credentialErrors);
+        	// reload page to display errors
+            RequestDispatcher rd = request.getRequestDispatcher("/index.jspx");
     		rd.include(request, response);
         } else {
         	// set the user's email as the session email
             session.setAttribute("userEmail", email);
+            
+            // TODO HLSP - set the user bean as a session variable
+            session.setAttribute("user", user);
             
             // direct to dashboard
             RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");

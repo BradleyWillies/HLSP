@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -131,14 +132,17 @@ public class DailyEntryFormServlet extends HttpServlet {
         DatabaseController dbController = new DatabaseController();
         
         // get the user id for the current session user email
-        String queryString = "SELECT id FROM user WHERE email LIKE '" + session.getAttribute("userEmail") + "';";
+        String queryString = "SELECT id FROM user WHERE email = '" + session.getAttribute("userEmail") + "';";
         int userId = dbController.getRecordId(queryString);
+        
+        // TODO HLSP -  use user bean to get id instead of db query
+        
         
         // if a user id was found
         if (userId > 0) {
         	// insert activity record
-            String insertString = "INSERT INTO `hlsp`.`daily_entry` (`user_id`, `meal_calories`, `exercise_calories`, `exercise_time`, `exercise_steps`, `work_time`, `work_stress`, `sleep_time`, `sleep_restfulness`, `meditation_time`) "
-            		+ "VALUES ('1', "+mealCalories+", "+exerciseCalories+", "+exerciseTime+", "+exerciseSteps+", "+workTime+", "+workStress+", "+sleepTime+", "+sleepRestfulness+", "+meditationTime+");";
+            String insertString = "INSERT INTO `hlsp`.`daily_entry` (`user_id`, `meal_calories`, `exercise_calories`, `exercise_time`, `exercise_steps`, `work_time`, `work_stress`, `sleep_time`, `sleep_restfulness`, `meditation_time`, `entry_date`) "
+            		+ "VALUES ("+userId+", "+mealCalories+", "+exerciseCalories+", "+exerciseTime+", "+exerciseSteps+", "+workTime+", "+workStress+", "+sleepTime+", "+sleepRestfulness+", "+meditationTime+", '"+LocalDate.now()+"');";
             dbController.insertRecord(insertString);
         }
         

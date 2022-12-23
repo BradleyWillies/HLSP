@@ -35,19 +35,24 @@ public class DatabaseController {
 		}
 	}
 	
-	public Boolean insertRecord(String insertString) {
-		Boolean exceptionOccurred = false;
+	public int insertRecord(String insertString) {
+		int returnId = 0;
 		openDbConnection();
 		
 		try {
-	        connection.createStatement().executeUpdate(insertString);
+			Statement stmt = connection.createStatement();
+	        stmt.executeUpdate(insertString, Statement.RETURN_GENERATED_KEYS);
+	        // get the id returned from the insert, otherwise will return 0 as there is an issue with the insert
+	        ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				returnId = rs.getInt(1);
+			}
         } catch (SQLException e) {
 			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
-			exceptionOccurred = true;
 		}
 		
 		closeDbConnection();
-		return exceptionOccurred;
+		return returnId;
 	}
 	
 	public int getRecordId(String queryString) {
@@ -69,7 +74,6 @@ public class DatabaseController {
 		}
 		
 		closeDbConnection();
-		System.out.println("User id returned: " + returnId);
 		return returnId;
 	}
 }
