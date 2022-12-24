@@ -29,29 +29,72 @@ public class DailyEntry {
 		this.meditationTime = meditationTime;
 	}
 	
-	// TODO HLSP - create validate method for daily entry fields
-	public static ArrayList<String> validateDailyEntry(String mealCalories, String exerciseCalories, String exerciseTime,
-			String exerciseSteps, String workTime, String workStress, String sleepTime, String sleepRestfulness, String meditationTime) {
+	public static ArrayList<String> validateDailyEntry(int mealCalories, int exerciseCalories, int exerciseTime,
+			int exerciseSteps, int workTime, int workStress, int sleepTime, int sleepRestfulness, int meditationTime) {
 		ArrayList<String> errors = new ArrayList<String>();
+		final int MINUTES_IN_DAY = 1440;
+		final int HOURS_IN_DAY = 24;
 		
-		// validating mealCalories
-		
-		// validating exerciseCalories
-		
-		// validating exerciseTime
-		
-		// validating exerciseSteps
-		
-		// validating workTime
-		
-		// validating workStress
-		
-		// validating sleepTime
-		
-		// validating sleepRestfulness
-		
-		// validating meditationTime
-		
+		try {
+			// validating mealCalories
+			if (mealCalories < 0) {
+				errors.add("Meals - Calories must be a positive number");
+			}
+			
+			// validating exerciseCalories
+			if (exerciseCalories < 0) {
+				errors.add("Exercise - Calories burned must be a positive number");
+			}
+			
+			// validating exerciseTime
+			if (exerciseTime < 0) {
+				errors.add("Exercise - Time exercising must be a positive number");
+			}
+			if (exerciseTime > MINUTES_IN_DAY) {
+				errors.add("Exercise - Time must not exceed " + MINUTES_IN_DAY + ", since this is the total minutes in a day");
+			}
+			
+			// validating exerciseSteps
+			if (exerciseSteps < 0) {
+				errors.add("Exercise - Step count must be a positive number");
+			}
+			
+			// validating workTime
+			if (workTime < 0) {
+				errors.add("Work - Time worked must be a positive number");
+			}
+			if (workTime > HOURS_IN_DAY) {
+				errors.add("Work - Time worked must not exceed " + HOURS_IN_DAY + ", since this is the total hours in a day");
+			}
+			
+			// validating workStress
+			if (workStress < 0 || workStress > 3) {
+				errors.add("Invalid value entered for Work Stressfulness");
+			}
+			
+			// validating sleepTime
+			if (sleepTime < 0) {
+				errors.add("Sleep - Time slept must be a positive number");
+			}
+			if (sleepTime > HOURS_IN_DAY) {
+				errors.add("Sleep - Time slept must not exceed " + HOURS_IN_DAY + ", since this is the total hours in a day");
+			}
+			
+			// validating sleepRestfulness
+			if (sleepRestfulness < 0 || sleepRestfulness > 3) {
+				errors.add("Invalid value entered for Sleep Restfulness");
+			}
+			
+			// validating meditationTime
+			if (meditationTime < 0) {
+				errors.add("Meditation - Time must be a positive number");
+			}
+			if (meditationTime > MINUTES_IN_DAY) {
+				errors.add("Meditation - Time must not exceed " + MINUTES_IN_DAY + ", since this is the total minutes in a day");
+			}
+		} catch (Exception e) {
+			errors.add("Unable to submit daily entry. The problem is: " + e.getMessage());
+		}
 		
 		return errors;
 	}
