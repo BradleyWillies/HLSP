@@ -5,8 +5,11 @@
           xmlns:f="http://java.sun.com/jsp/jstl/fmt"
           version="2.0">
 
-<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
-<html lang="en">
+<jsp:directive.page language="java" 
+	contentType="text/html" pageEncoding="UTF-8" />
+<jsp:element name="html">
+<jsp:body>
+
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -27,8 +30,7 @@
 			<section class="py-5 text-center container">
 				<div class="row py-lg-5">
 					<div class="col-lg-6 col-md-8 mx-auto">
-						<c:out value="${user.id}"/>
-						<% out.println("<h1 class=\"fw-light\">Hello " + session.getAttribute("user") + "!</h1>"); %>
+						<h1 class="fw-light">Hello <c:out value="${user.email}"/>!</h1>
 						<p class="lead text-muted">Submit a daily lifestyle entry using the button below</p>
 						<form  action="DailyEntryFormServlet" method="GET">
 						<p>
@@ -61,12 +63,16 @@
 									<h4>Meals</h4>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Calories consumed: </p>
-										<% 
-											if (session.getAttribute("mealCalories") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("mealCalories") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.mealCalories}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.mealCalories}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 								</div>
 							</div>
@@ -86,30 +92,42 @@
 									<h4>Exercise</h4>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Calories burned: </p>
-										<% 
-											if (session.getAttribute("exerciseCalories") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("exerciseCalories") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.exerciseCalories}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.exerciseCalories}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Time exercised: </p>
-										<% 
-											if (session.getAttribute("exerciseTime") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("exerciseTime") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.exerciseTime}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.exerciseTime}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Step count: </p>
-										<% 
-											if (session.getAttribute("exerciseSteps") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("exerciseSteps") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.exerciseSteps}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.exerciseSteps}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 								</div>
 							</div>
@@ -129,32 +147,35 @@
 									<h4>Work</h4>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Time worked: </p>
-										<% 
-											if (session.getAttribute("workTime") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("workTime") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.workTime}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.workTime}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Stressfulness: </p>
-										<% 
-											if (session.getAttribute("workStress") != null) {
-												switch((Integer) session.getAttribute("workStress")) {
-												case 1:
-													out.println("<p class=\"fw-bold\">Not very stressful</p>");
-													break;
-												case 2:
-													out.println("<p class=\"fw-bold\">Mildly stressful</p>");
-													break;
-												case 3:
-													out.println("<p class=\"fw-bold\">Very stressful</p>");
-													break;
-												}
-											}
-											else
-												out.println("<p class=\"fw-bold\">-</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.workStress}">
+													<c:out value="-"/>
+												</c:when>
+												<c:when test="${dailyEntry.workStress == 1}">
+													<c:out value="Not very stressful"/>
+												</c:when>
+												<c:when test="${dailyEntry.workStress == 2}">
+													<c:out value="Mildly stressful"/>
+												</c:when>
+												<c:when test="${dailyEntry.workStress == 3}">
+													<c:out value="Very stressful"/>
+												</c:when>
+											</c:choose>
+										</p>
 									</div>
 								</div>
 							</div>
@@ -174,32 +195,35 @@
 									<h4>Sleep</h4>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Time slept: </p>
-										<% 
-											if (session.getAttribute("sleepTime") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("sleepTime") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.sleepTime}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.sleepTime}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Restfulness: </p>
-										<% 
-											if (session.getAttribute("sleepRestfulness") != null) {
-												switch((Integer) session.getAttribute("sleepRestfulness")) {
-												case 1:
-													out.println("<p class=\"fw-bold\">Not very restful</p>");
-													break;
-												case 2:
-													out.println("<p class=\"fw-bold\">Mildly restful</p>");
-													break;
-												case 3:
-													out.println("<p class=\"fw-bold\">Very restful</p>");
-													break;
-												}
-											}
-											else
-												out.println("<p class=\"fw-bold\">-</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.sleepRestfulness}">
+													<c:out value="-"/>
+												</c:when>
+												<c:when test="${dailyEntry.sleepRestfulness == 1}">
+													<c:out value="Not very restful"/>
+												</c:when>
+												<c:when test="${dailyEntry.sleepRestfulness == 2}">
+													<c:out value="Mildly restful"/>
+												</c:when>
+												<c:when test="${dailyEntry.sleepRestfulness == 3}">
+													<c:out value="Very restful"/>
+												</c:when>
+											</c:choose>
+										</p>
 									</div>
 								</div>
 							</div>
@@ -219,12 +243,16 @@
 									<h4>Meditation</h4>
 									<div class="d-flex justify-content-between align-items-center">
 										<p class="card-text">Time meditated: </p>
-										<% 
-											if (session.getAttribute("meditationTime") != null)
-												out.println("<p class=\"fw-bold\">" + session.getAttribute("meditationTime") + "</p>");
-											else
-												out.println("<p class=\"fw-bold\">0</p>");
-										%>
+										<p class="fw-bold">
+											<c:choose>
+												<c:when test="${empty dailyEntry.meditationTime}">
+													<c:out value="0"/>
+												</c:when>
+												<c:otherwise>
+													<c:out value="${dailyEntry.meditationTime}"/>
+												</c:otherwise>
+											</c:choose>
+										</p>
 									</div>
 								</div>
 							</div>
@@ -242,4 +270,7 @@
 			integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
 			crossorigin="anonymous"></script>
 	</body>
-</html>
+
+</jsp:body>
+</jsp:element>
+</jsp:root>

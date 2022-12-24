@@ -1,6 +1,10 @@
 package servlets;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import beans.DailyEntry;
+import beans.User;
 import util.DatabaseController;
 
 /**
@@ -39,7 +45,7 @@ public class LoginServlet extends HttpServlet {
         
         // if the session isn't new and a user email exists, display the dashboard
         if (!session.isNew() && userEmail != null) {
-        	RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+        	RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jspx");
     		rd.include(request, response);
         }
         // otherwise display the login page
@@ -62,19 +68,31 @@ public class LoginServlet extends HttpServlet {
         
         // get the userId from the database using the input credentials
         DatabaseController dbController = new DatabaseController();
-        String queryString = "SELECT id FROM user WHERE email = '" + email + "' AND password = '" + password + "';";
-        int userId = dbController.getRecordId(queryString);
+        Connection dbConnection = dbController.getDbConnection();
+        String queryString = "SELECT id FROM user WHERE email = ? AND password = ? ;";
+        int userId = -1;
+        try {
+			PreparedStatement preparedStatement = dbConnection.prepareStatement(queryString);
+			preparedStatement.setString(1, email);
+			preparedStatement.setString(2, password);
+			userId = dbController.getRecordId(preparedStatement);
+		} catch (SQLException e) {
+			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+		}
         
         // if user exists in database direct them to the dashboard
         if (userId > 0) {
-        	// set the user's email as the session email
-            session.setAttribute("userEmail", email);
+            // create bean for user with email, id
+            User user = new User(userId, email);
             
-            // TODO HLSP -  create bean for user with email, id
+            // set the user bean as a session variable
+            session.setAttribute("user", user);
             
+            // add dailyEntry to session containing totals of today's daily entries for that user
+            session.setAttribute("dailyEntry", dbController.getTodaysDailyEntryForUser(userId));
             
             // direct to dashboard
-            RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jspx");
     		rd.include(request, response);
         } else {
         	RequestDispatcher rd = request.getRequestDispatcher("/login.html");

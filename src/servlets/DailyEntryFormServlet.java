@@ -3,6 +3,7 @@ package servlets;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import beans.DailyEntry;
+import beans.User;
 import util.DatabaseController;
 
 /**
@@ -58,6 +61,8 @@ public class DailyEntryFormServlet extends HttpServlet {
         int sleepRestfulness = 0;
         int meditationTime = 0;
         
+        // TODO HLSP - might not need these session attributes anymore
+        // TODO HLSP - use DailyEntry validate method to mirror js validation
         // append to session attributes
         // checks if request parameter has a value and if session attribute already has a value
         if(request.getParameter("mealCalories") != "") {
@@ -128,27 +133,66 @@ public class DailyEntryFormServlet extends HttpServlet {
 	        	session.setAttribute("meditationTime", meditationTime);
         }
         
-        // create a DatabaseController to interact with the db
+        // use user bean to get id
+        User user = (User) session.getAttribute("user");
+        int userId = user.getId();
+        
+    	// insert activity record
         DatabaseController dbController = new DatabaseController();
-        
-        // get the user id for the current session user email
-        String queryString = "SELECT id FROM user WHERE email = '" + session.getAttribute("userEmail") + "';";
-        int userId = dbController.getRecordId(queryString);
-        
-        // TODO HLSP -  use user bean to get id instead of db query
-        
-        
-        // if a user id was found
-        if (userId > 0) {
-        	// insert activity record
-            String insertString = "INSERT INTO `hlsp`.`daily_entry` (`user_id`, `meal_calories`, `exercise_calories`, `exercise_time`, `exercise_steps`, `work_time`, `work_stress`, `sleep_time`, `sleep_restfulness`, `meditation_time`, `entry_date`) "
-            		+ "VALUES ("+userId+", "+mealCalories+", "+exerciseCalories+", "+exerciseTime+", "+exerciseSteps+", "+workTime+", "+workStress+", "+sleepTime+", "+sleepRestfulness+", "+meditationTime+", '"+LocalDate.now()+"');";
-            dbController.insertRecord(insertString);
-        }
-        
+        Connection dbConnection = dbController.getDbConnection();
+        String insertString = "INSERT INTO `hlsp`.`daily_entry` (`user_id`, `meal_calories`, `exercise_calories`, `exercise_time`,"
+        		+ " `exercise_steps`, `work_time`, `work_stress`, `sleep_time`, `sleep_restfulness`, `meditation_time`, `entry_date`) "
+        		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '"+LocalDate.now()+"');";
+    	try {
+			PreparedStatement preparedStatement = dbConnection.prepareStatement(insertString);
+			preparedStatement.setInt(1, userId);
+			preparedStatement.setInt(2, mealCalories);
+			preparedStatement.setInt(3, exerciseCalories);
+			preparedStatement.setInt(4, exerciseTime);
+			preparedStatement.setInt(5, exerciseSteps);
+			preparedStatement.setInt(6, workTime);
+			preparedStatement.setInt(7, workStress);
+			preparedStatement.setInt(8, sleepTime);
+			preparedStatement.setInt(9, sleepRestfulness);
+			preparedStatement.setInt(10, meditationTime);
+			dbController.insertRecord(preparedStatement);
+		} catch (SQLException e) {
+			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+		}
+    	
+    	// get the existing dailyEntry from the session if one exists
+    	DailyEntry dailyEntry = (DailyEntry) session.getAttribute("dailyEntry");
+    	
+    	// if a dailyEntry exists, add the daily attributes to the form attributes to get daily totals
+    	if (dailyEntry != null) {
+    		mealCalories += dailyEntry.getMealCalories();
+    		exerciseCalories += dailyEntry.getExerciseCalories();
+    		exerciseTime += dailyEntry.getExerciseTime();
+    		exerciseSteps += dailyEntry.getExerciseSteps();
+    		workTime += dailyEntry.getWorkTime();
+    		sleepTime += dailyEntry.getSleepTime();
+    		meditationTime += dailyEntry.getMeditationTime();
+    	} else {
+    		// create the dailyEntry bean
+    		dailyEntry = new DailyEntry();
+    	}
+    	
+    	// set the dailyEntry bean with the new attributes
+    	dailyEntry.setMealCalories(mealCalories);
+    	dailyEntry.setExerciseCalories(exerciseCalories);
+    	dailyEntry.setExerciseTime(exerciseTime);
+    	dailyEntry.setExerciseSteps(exerciseSteps);
+    	dailyEntry.setWorkTime(workTime);
+    	dailyEntry.setWorkStress(workStress);
+    	dailyEntry.setSleepTime(sleepTime);
+    	dailyEntry.setSleepRestfulness(sleepRestfulness);
+    	dailyEntry.setMeditationTime(meditationTime);
+    	
+    	// add the dailyEntry bean to the session
+    	session.setAttribute("dailyEntry", dailyEntry);
         
         // return to the dashboard
-        RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jspx");
 		rd.include(request, response);
 	}
 

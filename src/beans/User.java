@@ -27,7 +27,7 @@ public class User {
 		this.id = id;
 	}
 	
-	public ArrayList<String> validateCredentials(String email, String password) {
+	public static ArrayList<String> validateCredentials(String email, String password) {
 		ArrayList<String> errors = new ArrayList<String>();
 		
 		// validating email

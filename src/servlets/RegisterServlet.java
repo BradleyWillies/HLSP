@@ -1,6 +1,10 @@
 package servlets;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +46,7 @@ public class RegisterServlet extends HttpServlet {
         
         // if the session isn't new and a user email exists, display the dashboard
         if (!session.isNew() && userEmail != null) {
-        	RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+        	RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jspx");
     		rd.include(request, response);
         }
         // otherwise display the register page
@@ -65,15 +69,23 @@ public class RegisterServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         
-        // insert user record in database
+        // check if user with email exists in db
         DatabaseController dbController = new DatabaseController();
-        String insertString = "INSERT INTO user (email, password) VALUES ('" + email + "', '" + password + "');";
-        int newUserId = dbController.insertRecord(insertString);
+        Connection dbConnection = dbController.getDbConnection();
+        String queryString = "SELECT id FROM user WHERE email = ? ;";
+        int userId = -1;
+        try {
+			PreparedStatement preparedStatement = dbConnection.prepareStatement(queryString);
+			preparedStatement.setString(1, email);
+			userId = dbController.getRecordId(preparedStatement);
+		} catch (SQLException e) {
+			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+		}
         
-	    // create user bean and validate credentials
-	    User user = new User(newUserId, email);
-	    ArrayList<String> credentialErrors = user.validateCredentials(email, password);
-	    if (newUserId == 0) {
+        
+	    // validate user credentials and create errors if credentials are invalid or user exists in db
+	    ArrayList<String> credentialErrors = User.validateCredentials(email, password);
+	    if (userId != 0) {
 	    	credentialErrors.add("A user with that email already exists");
 	    }
         
@@ -85,14 +97,27 @@ public class RegisterServlet extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("/index.jspx");
     		rd.include(request, response);
         } else {
-        	// set the user's email as the session email
-            session.setAttribute("userEmail", email);
+        	// insert user record in database
+        	dbConnection = dbController.getDbConnection();
+        	String insertString = "INSERT INTO user (email, password) VALUES ( ? , ? );";
+        	int newUserId = -1;
+        	try {
+    			PreparedStatement preparedStatement = dbConnection.prepareStatement(insertString, Statement.RETURN_GENERATED_KEYS);
+    			preparedStatement.setString(1, email);
+    			preparedStatement.setString(2, password);
+    			newUserId = dbController.insertRecord(preparedStatement);
+    		} catch (SQLException e) {
+    			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+    		}
             
-            // TODO HLSP - set the user bean as a session variable
+            // create the user bean
+            User user = new User(newUserId, email);
+            
+            // set the user bean as a session variable
             session.setAttribute("user", user);
             
             // direct to dashboard
-            RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/dashboard.jspx");
     		rd.include(request, response);
         }
 	}

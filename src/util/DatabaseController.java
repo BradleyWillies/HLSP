@@ -2,9 +2,12 @@ package util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDate;
+
+import beans.DailyEntry;
 
 public class DatabaseController {
 	private Connection connection;
@@ -12,7 +15,7 @@ public class DatabaseController {
 	private final String USERNAME = "root";
 	private final String PASSWORD = "root";
 	
-	private void openDbConnection() {
+	public Connection getDbConnection() {
 		if (connection == null) {
         	try {
         		// load the db driver
@@ -24,6 +27,7 @@ public class DatabaseController {
         		System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
         	}
         }
+		return connection;
 	}
 	
 	private void closeDbConnection() {
@@ -35,18 +39,11 @@ public class DatabaseController {
 		}
 	}
 	
-	public int insertRecord(String insertString) {
+	public int insertRecord(PreparedStatement preparedStatement) {
 		int returnId = 0;
-		openDbConnection();
 		
 		try {
-			Statement stmt = connection.createStatement();
-	        stmt.executeUpdate(insertString, Statement.RETURN_GENERATED_KEYS);
-	        // get the id returned from the insert, otherwise will return 0 as there is an issue with the insert
-	        ResultSet rs = stmt.getGeneratedKeys();
-			if (rs.next()) {
-				returnId = rs.getInt(1);
-			}
+			returnId = preparedStatement.executeUpdate();
         } catch (SQLException e) {
 			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
 		}
@@ -55,16 +52,15 @@ public class DatabaseController {
 		return returnId;
 	}
 	
-	public int getRecordId(String queryString) {
+	public int getRecordId(PreparedStatement preparedStatement) {
 		int returnId;
-		openDbConnection();
 		
 		try {
-			ResultSet rs1 = connection.createStatement().executeQuery(queryString);
+			ResultSet rs = preparedStatement.executeQuery();
 			// If there is a row in the ResultSet
-			if (rs1.next()) {
+			if (rs.next()) {
 				// get the record id from this row
-				returnId = rs1.getInt(1);
+				returnId = rs.getInt(1);
 			} else {
 				returnId = 0;
 			}
@@ -75,5 +71,31 @@ public class DatabaseController {
 		
 		closeDbConnection();
 		return returnId;
+	}
+
+	public DailyEntry getTodaysDailyEntryForUser(int userId) {
+		 DailyEntry dailyEntry = new DailyEntry();
+		 String queryString = "SELECT * FROM daily_entry WHERE user_id = ? "
+				 + "AND entry_date = '" + LocalDate.now() + "';";
+		 try {
+			 PreparedStatement preparedStatement = getDbConnection().prepareStatement(queryString);
+			 preparedStatement.setInt(1, userId);
+			 ResultSet rs = preparedStatement.executeQuery();
+			 while (rs.next()) {
+	            	dailyEntry.setMealCalories(dailyEntry.getMealCalories() + rs.getInt(3));
+	            	dailyEntry.setExerciseCalories(dailyEntry.getExerciseCalories() + rs.getInt(4));
+	            	dailyEntry.setExerciseTime(dailyEntry.getExerciseTime() + rs.getInt(5));
+	            	dailyEntry.setExerciseSteps(dailyEntry.getExerciseSteps() + rs.getInt(6));
+	            	dailyEntry.setWorkTime(dailyEntry.getWorkTime() + rs.getInt(7));
+	            	dailyEntry.setWorkStress(rs.getInt(8));
+	            	dailyEntry.setSleepTime(dailyEntry.getSleepTime() + rs.getInt(9));
+	            	dailyEntry.setSleepRestfulness(rs.getInt(10));
+	            	dailyEntry.setMeditationTime(dailyEntry.getMeditationTime() + rs.getInt(11));
+	            }
+		 } catch (SQLException e) {
+			 System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+		 }
+		 closeDbConnection();
+		 return dailyEntry;
 	}
 }
