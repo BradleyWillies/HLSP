@@ -82,8 +82,21 @@ public class LoginServlet extends HttpServlet {
         
         // if user exists in database direct them to the dashboard
         if (userId > 0) {
+        	// get the dashboard filter value for the user from the database
+        	dbConnection = dbController.getDbConnection();
+            queryString = "SELECT dashboard_filter FROM user WHERE id = ? ;";
+            String dashboardFilter = "";
+            try {
+    			PreparedStatement preparedStatement = dbConnection.prepareStatement(queryString);
+    			preparedStatement.setInt(1, userId);
+    			dashboardFilter = dbController.getDashboardFilter(preparedStatement);
+    		} catch (SQLException e) {
+    			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+    		}
+        	
             // create bean for user with email, id
             User user = new User(userId, email);
+            user.setDashboardFilter(dashboardFilter);
             
             // set the user bean as a session variable
             session.setAttribute("user", user);

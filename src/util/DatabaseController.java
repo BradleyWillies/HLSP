@@ -98,4 +98,25 @@ public class DatabaseController {
 		 closeDbConnection();
 		 return dailyEntry;
 	}
+	
+	public String getDashboardFilter(PreparedStatement preparedStatement) {
+		String returnFilter;
+		
+		try {
+			ResultSet rs = preparedStatement.executeQuery();
+			// If there is a row in the ResultSet
+			if (rs.next()) {
+				// get the record id from this row
+				returnFilter = rs.getString(1);
+			} else {
+				returnFilter = "";
+			}
+        } catch (SQLException e) {
+			System.out.println("Exception is ;" + e + ": message is " + e.getMessage());
+			returnFilter = "";
+		}
+		
+		closeDbConnection();
+		return returnFilter;
+	}
 }

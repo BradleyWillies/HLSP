@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 public class User {
 	private String email;
 	private int id;
+	private String dashboardFilter;
 	
 	public User(int id, String email) {
 		this.id = id;
@@ -26,7 +27,14 @@ public class User {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+	public String getDashboardFilter() {
+		return dashboardFilter;
+	}
+
+	public void setDashboardFilter(String dashboardFilter) {
+		this.dashboardFilter = dashboardFilter;
+	}
+
 	public static ArrayList<String> validateCredentials(String email, String password) {
 		ArrayList<String> errors = new ArrayList<String>();
 		
